@@ -1,0 +1,7 @@
+prompt.md
+ideas.md
+wedding.zip
+.thumbnail
+
+# Plaintext content — NEVER commit this; only the encrypted js/content.js ships
+content/content.template.js

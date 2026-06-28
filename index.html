@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<!-- ============================================================================
+     WEDDING WEBSITE  —  index.html
+     ----------------------------------------------------------------------------
+     ┌─────────────────────────── DEVELOPER SETUP ──────────────────────────────┐
+     │ 1. EDIT CONTENT                                                           │
+     │    All page text/HTML lives in  /content/content.template.js  (plaintext).│
+     │    Replace every [PLACEHOLDER] with your details. Names appear as the     │
+     │    literal "[Name] & [Name]" inside the home page HTML there.             │
+     │                                                                           │
+     │ 2. RE-ENCRYPT BEFORE DEPLOY                                               │
+     │    The live site reads ENCRYPTED content from /js/content.js — never the  │
+     │    template. To regenerate it after editing:                             │
+     │      a. Run a local server in the project root:                          │
+     │           python3 -m http.server 8000                                    │
+     │      b. Open  http://localhost:8000/tools/encrypt.html                   │
+     │      c. Enter your password, click "Encrypt", copy the output, and       │
+     │         paste it over the contents of  /js/content.js.                   │
+     │    (Full details, plus Google-Form, image and GitHub-Pages instructions, │
+     │     are in README.md.)                                                    │
+     │                                                                           │
+     │ 3. DEFAULT TEST PASSWORD for the shipped sample content is:  shuangxi     │
+     │    CHANGE IT: re-encrypt with your own password before going live.        │
+     └───────────────────────────────────────────────────────────────────────────┘
+     ============================================================================ -->
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="robots" content="noindex, nofollow"><!-- keep the private site out of search engines -->
+  <title>Our Wedding</title>
+
+  <!-- Google Fonts: Cormorant Garamond (serif headings) + Inter + Noto SC (Chinese) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+  <!-- Site styles -->
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+
+<body class="locked">
+
+  <!-- =========================================================================
+       PASSWORD / LOCK OVERLAY  (shown until the correct password is entered)
+       ========================================================================= -->
+  <div class="lock" id="lock">
+    <div class="lock-card">
+      <div class="lock-seal">囍</div>
+      <h1 data-i18n="lock.title">Our Wedding</h1>
+      <p class="lock-sub" data-i18n="lock.subtitle">A private celebration</p>
+
+      <form class="lock-form" id="lockForm" autocomplete="off">
+        <input
+          type="password"
+          id="lockInput"
+          class="lock-input"
+          data-i18n-placeholder="lock.placeholder"
+          placeholder="Enter password"
+          aria-label="Password"
+          autocomplete="off"
+          autofocus>
+        <button type="submit" class="btn btn-solid" data-i18n="lock.submit">Enter</button>
+        <div class="lock-error" id="lockError" role="alert" data-i18n="lock.error"></div>
+      </form>
+
+      <p class="lock-hint" data-i18n="lock.hint">Please enter the password provided with your invitation.</p>
+
+      <!-- Language switch available even before unlocking -->
+      <div class="lock-lang" id="lockLang"></div>
+    </div>
+  </div>
+
+  <!-- =========================================================================
+       SITE SHELL  (revealed after unlock; tabs are only visible here)
+       ========================================================================= -->
+  <div class="site" id="site">
+
+    <!-- Header / navigation -->
+    <header class="header">
+      <div class="header-inner">
+        <div class="brand" id="brand" role="button" tabindex="0" title="Home">
+          <span class="seal">囍</span>
+          <span data-i18n="brand">[Name] &amp; [Name]</span>
+        </div>
+
+        <!-- Desktop tabs / mobile slide-down menu -->
+        <nav>
+          <ul class="tabs" id="tabs">
+            <li><button class="tab active" data-page="home"    data-i18n="nav.home">Welcome</button></li>
+            <li><button class="tab"        data-page="travel"  data-i18n="nav.travel">Getting There</button></li>
+            <li><button class="tab"        data-page="hotel"   data-i18n="nav.hotel">Hotels</button></li>
+            <li><button class="tab"        data-page="guide"   data-i18n="nav.guide">Travel Guide</button></li>
+            <li><button class="tab"        data-page="gallery" data-i18n="nav.gallery">Gallery</button></li>
+            <li><button class="tab"        data-page="rsvp"    data-i18n="nav.rsvp">RSVP</button></li>
+          </ul>
+        </nav>
+
+        <!-- Controls: language + theme + hamburger -->
+        <div class="controls">
+          <div class="lang-switch" id="langSwitch"></div>
+          <button class="icon-btn" id="themeBtn" type="button" aria-label="Toggle theme">☀</button>
+          <button class="hamburger" id="hamburger" type="button" aria-label="Menu">
+            <span></span><span></span><span></span>
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <!-- Pages — emptied here; main.js injects the decrypted HTML into each -->
+    <main id="pages">
+      <section class="page active" id="page-home"></section>
+      <section class="page" id="page-travel"></section>
+      <section class="page" id="page-hotel"></section>
+      <section class="page" id="page-guide"></section>
+      <section class="page" id="page-gallery"></section>
+      <section class="page" id="page-rsvp"></section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+      <div class="divider" style="margin-bottom:1.4rem"><span class="motif">囍</span></div>
+      <p data-i18n="footer.text">We can’t wait to celebrate with you.</p>
+      <p style="margin-top:0.4rem;opacity:0.7"><span class="seal">囍</span> <span data-i18n="brand">[Name] &amp; [Name]</span></p>
+    </footer>
+  </div>
+
+  <!-- =========================================================================
+       SCRIPTS  (load order matters)
+       1. CryptoJS (CDN)        — AES decryption
+       2. translations.js       — UI-chrome strings (plaintext)
+       3. encryption.js         — decrypt/encrypt helpers
+       4. content.js            — the ENCRYPTED payload (generated by the tool)
+       5. main.js               — app logic
+       ========================================================================= -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.2.0/crypto-js.min.js"></script>
+  <script src="js/translations.js"></script>
+  <script src="js/encryption.js"></script>
+  <script src="js/content.js"></script>
+  <script src="js/main.js"></script>
+</body>
+</html>
