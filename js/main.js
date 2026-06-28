@@ -427,10 +427,6 @@
         plus_one_name: $("#rsvp-plusname").value.trim(),
         dietary: $("#rsvp-diet").value.trim(),
         note: $("#rsvp-note").value.trim(),
-        // FormSubmit.co options:
-        _subject: "New RSVP — [Name] & [Name] Wedding",
-        _template: "table",
-        _captcha: "false"
       };
 
       if (!endpoint) { msg.textContent = t("rsvp.f.error"); msg.classList.add("err"); return; }
