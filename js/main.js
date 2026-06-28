@@ -441,7 +441,7 @@
 
       fetch(endpoint, {
         method: "POST",
-        headers: { "Content-Type": "application/json", "Accept": "application/json" },
+        headers: { "Content-Type": "text/plain" },
         body: JSON.stringify(payload)
       })
         .then(function (r) { return r.json().catch(function () { return {}; }); })
