@@ -107,6 +107,7 @@ a { color: var(--gold-2); text-decoration: none; transition: color 0.25s ease; }
 a:hover { color: var(--crimson); }
 
 img { max-width: 100%; display: block; }
+[hidden] { display: none !important; }
 
 ::selection { background: rgba(196, 69, 74, 0.35); color: var(--text); }
 
