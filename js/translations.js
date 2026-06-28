@@ -17,7 +17,6 @@ window.I18N = {
   en: {
     /* --- meta --- */
     "site.title": "Our Wedding",
-    "brand": "[Name] & [Name]",
 
     /* --- lock / password screen --- */
     "lock.title": "Our Wedding",
@@ -47,7 +46,6 @@ window.I18N = {
 
   de: {
     "site.title": "Unsere Hochzeit",
-    "brand": "[Name] & [Name]",
 
     "lock.title": "Unsere Hochzeit",
     "lock.subtitle": "Eine private Feier",
@@ -73,7 +71,6 @@ window.I18N = {
 
   zh: {
     "site.title": "我们的婚礼",
-    "brand": "[Name] & [Name]",
 
     "lock.title": "我们的婚礼",
     "lock.subtitle": "一场私密的庆典",
