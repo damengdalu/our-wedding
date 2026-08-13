@@ -6,3 +6,8 @@ README.md
 
 # Plaintext content — NEVER commit this; only the encrypted js/content.js ships
 content/content.template.js
+
+# Real gallery photos — NEVER commit these; only referenced by path inside the
+# encrypted js/content.js payload
+images/gallery/
+images/gallery-china/

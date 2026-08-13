@@ -195,7 +195,8 @@
     });
 
     // Build dynamic pieces
-    state.gallery = content.gallery || [];
+    state.gallery = (content.gallery || []).concat(content.galleryChina || []);
+    state.galleryChinaStart = (content.gallery || []).length;
     renderGallery();
     buildLightbox();
     setupReveal();
@@ -276,8 +277,10 @@
      ---------------------------------------------------------------------- */
   function renderGallery() {
     var grid = $("#gallery-grid");
+    var gridChina = $("#gallery-grid-china");
     if (!grid) return;
     grid.innerHTML = "";
+    if (gridChina) gridChina.innerHTML = "";
 
     state.gallery.forEach(function (item, i) {
       var fig = document.createElement("figure");
@@ -300,7 +303,9 @@
       fig.appendChild(img);
       fig.appendChild(cap);
       fig.addEventListener("click", function () { openLightbox(i); });
-      grid.appendChild(fig);
+
+      var target = (gridChina && i >= state.galleryChinaStart) ? gridChina : grid;
+      target.appendChild(fig);
     });
   }
 
@@ -389,6 +394,21 @@
       });
     });
 
+    // Hide plus-one / dietary fields when declining — they don't apply
+    $all('input[name="attending"]', form).forEach(function (r) {
+      r.addEventListener("change", function () {
+        var declining = r.value === "Regretfully declining" && r.checked;
+        $("#rsvp-plusone-field").hidden = declining;
+        $("#rsvp-diet-field").hidden = declining;
+        if (declining) {
+          $all('input[name="plus_one"]', form).forEach(function (p) { p.checked = false; });
+          $("#rsvp-plusname-field").hidden = true;
+          $("#rsvp-plusname").value = "";
+          $("#rsvp-diet").value = "";
+        }
+      });
+    });
+
     // Clear inline error styling as the guest edits
     ["rsvp-name", "rsvp-email"].forEach(function (id) {
       var el = $("#" + id);
@@ -435,20 +455,20 @@
       btn.disabled = true;
       btn.textContent = t("rsvp.f.sending");
 
+      // Google Apps Script Web Apps don't send CORS headers on the response,
+      // so a normal fetch() can't read it back (even though the request DOES
+      // reach the script and gets processed). Use no-cors and treat a
+      // non-throwing fetch as success — we can't inspect the response body.
       fetch(endpoint, {
         method: "POST",
+        mode: "no-cors",
         headers: { "Content-Type": "text/plain" },
         body: JSON.stringify(payload)
       })
-        .then(function (r) { return r.json().catch(function () { return {}; }); })
-        .then(function (res) {
-          if (res && (res.success === "true" || res.success === true)) {
-            form.hidden = true;
-            $("#rsvpSuccess").hidden = false;
-            window.scrollTo({ top: 0, behavior: "auto" });
-          } else {
-            throw new Error("submit failed");
-          }
+        .then(function () {
+          form.hidden = true;
+          $("#rsvpSuccess").hidden = false;
+          window.scrollTo({ top: 0, behavior: "auto" });
         })
         .catch(function () {
           msg.textContent = t("rsvp.f.error");

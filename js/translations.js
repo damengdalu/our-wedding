@@ -59,7 +59,7 @@ window.I18N = {
     "nav.hotel": "Hotels",
     "nav.guide": "Reiseführer",
     "nav.gallery": "Galerie",
-    "nav.rsvp": "Zusage",
+    "nav.rsvp": "RSVP",
 
     "ctl.theme.toLight": "Zum hellen Modus wechseln",
     "ctl.theme.toDark": "Zum dunklen Modus wechseln",
