@@ -55,7 +55,34 @@
     }
   }
 
+  /**
+   * Decrypt a base64 OpenSSL-format ("Salted__...") AES ciphertext into raw
+   * bytes. Used for encrypted photo files (see /tools/encrypt.js and the
+   * gallery loader in main.js) — same scheme as decryptContent, but returns
+   * binary instead of parsing as UTF-8 JSON.
+   * @param {string} base64Ciphertext
+   * @param {string} password
+   * @returns {Uint8Array|null}
+   */
+  function decryptBinary(base64Ciphertext, password) {
+    if (typeof CryptoJS === "undefined") return null;
+    try {
+      var decrypted = CryptoJS.AES.decrypt(base64Ciphertext, password);
+      if (!decrypted || decrypted.sigBytes <= 0) return null;
+      var words = decrypted.words;
+      var sigBytes = decrypted.sigBytes;
+      var u8 = new Uint8Array(sigBytes);
+      for (var i = 0; i < sigBytes; i++) {
+        u8[i] = (words[i >>> 2] >>> (24 - (i % 4) * 8)) & 0xff;
+      }
+      return u8;
+    } catch (e) {
+      return null;
+    }
+  }
+
   window.WeddingCrypto = {
-    decryptContent: decryptContent
+    decryptContent: decryptContent,
+    decryptBinary: decryptBinary
   };
 })();

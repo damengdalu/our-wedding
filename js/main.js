@@ -24,6 +24,10 @@
   var KEY_CONTENT = "wedding_content";   // cached decrypted payload (this session)
   var KEY_LANG    = "wedding_lang";      // language preference (this session)
   var KEY_THEME   = "wedding_theme";     // theme preference (this session)
+  var KEY_PW      = "wedding_pw";        // cached password (this session) — needed to
+                                          // decrypt photo files on demand; same trust
+                                          // boundary as KEY_CONTENT (sessionStorage only,
+                                          // wiped when the tab closes)
 
   // A short stamp identifying the deployed ciphertext. If content.js is
   // redeployed with new content, this changes, so a cached payload from a
@@ -36,10 +40,12 @@
   var state = {
     lang: "en",
     content: null,       // decrypted WEDDING_CONTENT
+    password: null,      // kept in memory (+ sessionStorage) to decrypt photo files
     activePage: "home",
     gallery: [],
     lightboxIndex: 0,
-    countdownTimer: null
+    countdownTimer: null,
+    imgUrlCache: {}       // gallery index → decrypted blob: URL, once loaded
   };
 
   /* ----------------------------------------------------------------------
@@ -156,7 +162,11 @@
       var data = window.WeddingCrypto.decryptContent(pw);
       if (data) {
         // Success — cache for the session (with a version stamp) and reveal
-        try { SS.setItem(KEY_CONTENT, JSON.stringify({ v: contentVersion(), data: data })); } catch (e2) { /* quota: fine, stays in memory */ }
+        try {
+          SS.setItem(KEY_CONTENT, JSON.stringify({ v: contentVersion(), data: data }));
+          SS.setItem(KEY_PW, pw); // needed to decrypt photo files on demand
+        } catch (e2) { /* quota: fine, stays in memory */ }
+        state.password = pw;
         unlock(data);
       } else {
         // Gentle, styled failure: shake + soft message (no alert)
@@ -274,7 +284,34 @@
 
   /* ----------------------------------------------------------------------
      GALLERY + LIGHTBOX
+     Photos ship as per-file AES ciphertext (images-enc/.../<name>.enc,
+     produced by tools/encrypt.js) so the raw images never sit in the public
+     repo. Each is fetched + decrypted client-side into a blob: URL, using
+     the same password that unlocked the text content (state.password).
      ---------------------------------------------------------------------- */
+  function mimeFor(name) {
+    var ext = (name.split(".").pop() || "").toLowerCase();
+    if (ext === "png") return "image/png";
+    if (ext === "webp") return "image/webp";
+    return "image/jpeg";
+  }
+
+  function loadEncryptedImage(index) {
+    if (state.imgUrlCache[index]) return Promise.resolve(state.imgUrlCache[index]);
+    var item = state.gallery[index];
+    var encPath = item.src.replace(/^images\//, "images-enc/") + ".enc";
+    return fetch(encPath)
+      .then(function (r) { if (!r.ok) throw new Error("fetch failed"); return r.text(); })
+      .then(function (b64) {
+        var bytes = window.WeddingCrypto.decryptBinary(b64, state.password);
+        if (!bytes) throw new Error("decrypt failed");
+        var blob = new Blob([bytes], { type: mimeFor(item.src) });
+        var url = URL.createObjectURL(blob);
+        state.imgUrlCache[index] = url;
+        return url;
+      });
+  }
+
   function renderGallery() {
     var grid = $("#gallery-grid");
     var gridChina = $("#gallery-grid-china");
@@ -288,13 +325,14 @@
 
       var img = document.createElement("img");
       img.alt = t(item.caption) || "";
-      img.loading = "lazy";
       img.addEventListener("load", function () {
         img.classList.add("loaded");
         fig.classList.add("done");
       });
       img.addEventListener("error", function () { fig.classList.add("done"); });
-      img.src = item.src;
+      loadEncryptedImage(i)
+        .then(function (url) { img.src = url; })
+        .catch(function () { fig.classList.add("done"); });
 
       var cap = document.createElement("figcaption");
       cap.setAttribute("data-i18n", item.caption);
@@ -363,16 +401,20 @@
     showLightboxImage();
   }
   function showLightboxImage() {
-    var item = state.gallery[state.lightboxIndex];
+    var index = state.lightboxIndex;
+    var item = state.gallery[index];
     var img = $("#lbImg");
     // Smooth fade: hide, swap src, fade back in on load
     img.classList.remove("show");
-    var pre = new Image();
-    pre.onload = function () { img.src = item.src; img.classList.add("show"); };
-    pre.src = item.src;
+    loadEncryptedImage(index).then(function (url) {
+      if (state.lightboxIndex !== index) return; // guest navigated on before this resolved
+      var pre = new Image();
+      pre.onload = function () { img.src = url; img.classList.add("show"); };
+      pre.src = url;
+    });
     img.alt = t(item.caption) || "";
     $("#lbCap").textContent = t(item.caption) || "";
-    $("#lbCount").textContent = (state.lightboxIndex + 1) + " / " + state.gallery.length;
+    $("#lbCount").textContent = (index + 1) + " / " + state.gallery.length;
   }
 
   /* ----------------------------------------------------------------------
@@ -536,6 +578,7 @@
       try {
         var parsed = JSON.parse(cached);
         if (parsed && parsed.v === contentVersion() && parsed.data && parsed.data.__ok) {
+          state.password = SS.getItem(KEY_PW) || null;
           unlock(parsed.data);
           return;
         }

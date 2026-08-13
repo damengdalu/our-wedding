@@ -22,6 +22,10 @@ const crypto = require('crypto');
 const ROOT = path.resolve(__dirname, '..');
 const TEMPLATE = path.join(ROOT, 'content', 'content.template.js');
 const OUTPUT = path.join(ROOT, 'js', 'content.js');
+const IMAGE_DIRS = [
+  { raw: path.join(ROOT, 'images', 'gallery'), enc: path.join(ROOT, 'images-enc', 'gallery') },
+  { raw: path.join(ROOT, 'images', 'gallery-china'), enc: path.join(ROOT, 'images-enc', 'gallery-china') }
+];
 
 const password = process.argv[2] || process.env.PASSWORD || 'shuangxi';
 
@@ -35,6 +39,38 @@ function evpKDF(pass, salt, keyLen, ivLen) {
     derived = Buffer.concat([derived, prev]);
   }
   return { key: derived.slice(0, keyLen), iv: derived.slice(keyLen, keyLen + ivLen) };
+}
+
+// Encrypt raw bytes into the same "Salted__" OpenSSL/CryptoJS base64 format
+// used for the text content, so js/encryption.js can decrypt either with the
+// same CryptoJS.AES.decrypt(base64, password) call.
+function encryptBytes(buf) {
+  const salt = crypto.randomBytes(8);
+  const { key, iv } = evpKDF(password, salt, 32, 16);
+  const cipher = crypto.createCipheriv('aes-256-cbc', key, iv);
+  const ct = Buffer.concat([cipher.update(buf), cipher.final()]);
+  return Buffer.concat([Buffer.from('Salted__', 'utf8'), salt, ct]).toString('base64');
+}
+
+// Encrypt every photo in images/gallery* into images-enc/gallery*/<name>.enc
+// (a text file holding the base64 ciphertext). The raw photos stay gitignored;
+// only these encrypted files are safe to commit to the public repo.
+function encryptImages() {
+  let count = 0;
+  IMAGE_DIRS.forEach(function (dir) {
+    if (!fs.existsSync(dir.raw)) return;
+    fs.mkdirSync(dir.enc, { recursive: true });
+    // Remove stale .enc files so renamed/deleted photos don't leave orphans
+    fs.readdirSync(dir.enc).forEach(function (f) { fs.unlinkSync(path.join(dir.enc, f)); });
+    fs.readdirSync(dir.raw).forEach(function (name) {
+      if (name.startsWith('.')) return;
+      const bytes = fs.readFileSync(path.join(dir.raw, name));
+      const b64 = encryptBytes(bytes);
+      fs.writeFileSync(path.join(dir.enc, name + '.enc'), b64, 'utf8');
+      count++;
+    });
+  });
+  return count;
 }
 
 // --- Load window.WEDDING_CONTENT from the template ---
@@ -78,6 +114,10 @@ function main() {
 
   fs.writeFileSync(OUTPUT, fileText, 'utf8');
   console.log('✓ Encrypted ' + json.length + ' bytes → js/content.js (' + b64.length + ' b64 chars)');
+
+  const imgCount = encryptImages();
+  if (imgCount) console.log('✓ Encrypted ' + imgCount + ' photo(s) → images-enc/');
+
   console.log('  password: "' + password + '"');
 }
 
