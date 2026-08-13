@@ -55,21 +55,7 @@
     }
   }
 
-  /**
-   * Helper used ONLY by /tools/encrypt.html to produce the ciphertext.
-   * Kept here so the same CryptoJS usage is in one place. Not called by the site.
-   * @param {object} contentObject
-   * @param {string} password
-   * @returns {string} ciphertext
-   */
-  function encryptContent(contentObject, password) {
-    var payload = Object.assign({ __ok: true }, contentObject);
-    var json = JSON.stringify(payload);
-    return CryptoJS.AES.encrypt(json, password).toString();
-  }
-
   window.WeddingCrypto = {
-    decryptContent: decryptContent,
-    encryptContent: encryptContent
+    decryptContent: decryptContent
   };
 })();

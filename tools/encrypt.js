@@ -11,8 +11,7 @@
      PASSWORD=secret node tools/encrypt.js
    Defaults to the password "shuangxi" if none is given.
 
-   This is the command the Makefile calls. The browser tool /tools/encrypt.html
-   still works too — both produce the same format.
+   This is the command the Makefile calls.
    ============================================================================ */
 
 'use strict';
