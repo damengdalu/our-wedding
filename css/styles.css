@@ -415,6 +415,8 @@ main#pages { max-width: var(--maxw); margin: 0 auto; padding: 0 clamp(16px, 4vw,
 .page-head h2 { font-size: clamp(2rem, 5vw, 3rem); margin-top: 0.4rem; }
 .page-head p.lead { color: var(--muted); max-width: 620px; margin: 0.6rem auto 0; }
 
+.page > h3 { font-size: clamp(1.4rem, 2.4vw, 1.8rem); margin-bottom: 0.6rem; }
+
 /* ----------------------------------------------------------------------------
    7. HERO (Front page)
    ---------------------------------------------------------------------------- */
