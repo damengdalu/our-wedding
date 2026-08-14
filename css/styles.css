@@ -329,7 +329,7 @@ body.locked { overflow: hidden; }
 }
 .brand {
   font-family: 'Cormorant Garamond', 'Noto Serif SC', serif;
-  font-size: clamp(0.95rem, 4.5vw, 1.3rem);
+  font-size: 1.3rem;
   letter-spacing: 0.08em;
   display: flex;
   align-items: center;
@@ -337,7 +337,7 @@ body.locked { overflow: hidden; }
   min-width: 0;
 }
 .brand .seal { color: var(--crimson); font-family: 'Noto Serif SC', serif; flex-shrink: 0; }
-.brand > span:not(.seal) { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0; }
+.brand > span:not(.seal) { min-width: 0; }
 
 /* Desktop tabs */
 .tabs {
@@ -817,6 +817,9 @@ main#pages { max-width: var(--maxw); margin: 0 auto; padding: 0 clamp(16px, 4vw,
   .controls { gap: 0.15rem; }
   .lang-btn { padding: 4px 4px; }
   .icon-btn { width: 32px; height: 32px; font-size: 0.85rem; }
+
+  .brand { font-size: 0.95rem; align-items: flex-start; }
+  .brand > span:not(.seal) { white-space: normal; line-height: 1.2; }
 
   /* Mobile nav: hamburger + slide-down panel */
   .hamburger {
