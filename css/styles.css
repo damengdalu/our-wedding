@@ -545,20 +545,6 @@ main#pages { max-width: var(--maxw); margin: 0 auto; padding: 0 clamp(16px, 4vw,
 .callout .tip-label { color: var(--crimson); font-weight: 500; font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.14em; }
 .callout p { color: var(--muted); margin: 0.4rem 0 0; font-size: 0.9rem; }
 
-/* Itinerary */
-.itinerary { display: grid; gap: 1.1rem; margin-top: 1.4rem; }
-.day {
-  background: var(--surface);
-  border: 1px solid var(--line-soft);
-  border-radius: var(--radius);
-  padding: 1.4rem 1.5rem;
-}
-.day .day-num { color: var(--gold); font-size: 0.74rem; letter-spacing: 0.2em; text-transform: uppercase; }
-.day h4 { font-family: 'Cormorant Garamond','Noto Serif SC',serif; font-size: 1.35rem; font-weight:500; margin: 0.2rem 0 0.6rem; }
-html[lang="zh"] .day h4 { font-family:'Noto Serif SC',serif; }
-.day ul { margin: 0; padding-left: 1.1rem; color: var(--muted); font-size: 0.9rem; }
-.day ul li { margin: 0.3rem 0; }
-
 /* ----------------------------------------------------------------------------
    9. GALLERY + LIGHTBOX
    ---------------------------------------------------------------------------- */
