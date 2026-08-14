@@ -74,7 +74,7 @@
    ---------------------------------------------------------------------------- */
 *, *::before, *::after { box-sizing: border-box; }
 
-html { scroll-behavior: smooth; }
+html { scroll-behavior: smooth; font-size: 108%; }
 
 body {
   margin: 0;
@@ -331,12 +331,13 @@ body.locked { overflow: hidden; }
   font-family: 'Cormorant Garamond', 'Noto Serif SC', serif;
   font-size: 1.3rem;
   letter-spacing: 0.08em;
-  white-space: nowrap;
   display: flex;
   align-items: center;
   gap: 0.5rem;
+  min-width: 0;
 }
-.brand .seal { color: var(--crimson); font-family: 'Noto Serif SC', serif; }
+.brand .seal { color: var(--crimson); font-family: 'Noto Serif SC', serif; flex-shrink: 0; }
+.brand > span:not(.seal) { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0; }
 
 /* Desktop tabs */
 .tabs {
@@ -375,7 +376,7 @@ body.locked { overflow: hidden; }
 .tab.active::after { transform: scaleX(1); }
 
 /* Header controls (theme + lang) */
-.controls { display: flex; align-items: center; gap: 0.4rem; }
+.controls { display: flex; align-items: center; gap: 0.4rem; flex-shrink: 0; }
 .icon-btn {
   display: inline-flex;
   align-items: center;
