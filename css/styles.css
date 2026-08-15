@@ -772,6 +772,18 @@ main#pages { max-width: var(--maxw); margin: 0 auto; padding: 0 clamp(16px, 4vw,
 .rsvp-success h3 { font-size: 2rem; margin-bottom: 0.4rem; }
 .rsvp-success p { color: var(--muted); max-width: 420px; margin: 0 auto; }
 
+/* External RSVP form (zh) */
+.rsvp-external {
+  text-align: center;
+  padding: clamp(2rem, 6vw, 3.4rem) 1.5rem;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  box-shadow: var(--shadow);
+  animation: fadeUp 0.6s ease both;
+}
+.rsvp-external .lead { max-width: 420px; margin: 0 auto 1.2rem; }
+
 /* ----------------------------------------------------------------------------
    11. FOOTER
    ---------------------------------------------------------------------------- */

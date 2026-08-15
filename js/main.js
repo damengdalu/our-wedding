@@ -91,6 +91,9 @@
     // Re-translate everything currently in the DOM (lock screen + site)
     applyI18n(document);
 
+    // Re-check which RSVP form (Cloudflare vs external) applies to this language
+    if (state.content) updateRsvpForLang();
+
     // Reflect active state on every language switcher on the page
     $all(".lang-btn, .lock-lang button").forEach(function (b) {
       b.classList.toggle("active", b.getAttribute("data-lang") === lang);
@@ -420,9 +423,27 @@
   /* ----------------------------------------------------------------------
      RSVP FORM  (custom form → FormSubmit.co → email to the couple)
      ---------------------------------------------------------------------- */
+  // zh guests: Cloudflare's *.workers.dev endpoint is unreliable from mainland
+  // China, so route them to a mainland-reachable form instead, when configured.
+  // Called at unlock AND on every language switch, since a guest may switch
+  // languages after the page is already built.
+  function updateRsvpForLang() {
+    var form = $("#rsvpForm");
+    var external = $("#rsvpExternal");
+    if (!form || !external) return;
+
+    var formZh = state.content && state.content.config && state.content.config.rsvpFormZh;
+    var useExternal = state.lang === "zh" && formZh;
+    form.hidden = useExternal;
+    external.hidden = !useExternal;
+    if (useExternal) $("#rsvpExternalLink").href = formZh;
+  }
+
   function initRsvp() {
     var form = $("#rsvpForm");
     if (!form) return;
+
+    updateRsvpForLang();
 
     var endpoint = state.content && state.content.config && state.content.config.rsvpEndpoint;
     var msg = $("#rsvpMsg");
