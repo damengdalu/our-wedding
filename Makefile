@@ -8,8 +8,9 @@
 #    make build      → alias for `encrypt`
 #    make clean      → delete the generated js/content.js
 #    make rebuild    → clean + encrypt
-#    make get-rsvp   → dump submitted RSVPs from the Cloudflare D1 database
-#    make help       → list targets
+#    make get-rsvp        → dump submitted RSVPs from the Cloudflare D1 database
+#    make clean-entire-d1 → delete ALL rows from the D1 RSVP database (asks to confirm)
+#    make help            → list targets
 #
 #  Variables (override on the command line):
 #    PASSWORD   the guest password to encrypt with   (default: shuangxi)
@@ -32,7 +33,7 @@ PASSWORD ?= shuangxi
 PORT     ?= 8000
 
 .DEFAULT_GOAL := all
-.PHONY: all encrypt build serve rebuild clean get-rsvp help
+.PHONY: all encrypt build serve rebuild clean get-rsvp clean-entire-d1 help
 
 all: encrypt serve
 
@@ -54,10 +55,17 @@ clean:
 get-rsvp:
 	@cd tools/rsvp-worker && wrangler d1 execute wedding-rsvp --remote --command "SELECT * FROM rsvps ORDER BY created_at;"
 
+clean-entire-d1:
+	@echo "⚠️  This permanently deletes ALL rows from the RSVP database (wedding-rsvp)."
+	@read -p "Type 'yes' to confirm: " confirm && [ "$$confirm" = "yes" ] || (echo "Aborted."; exit 1)
+	@cd tools/rsvp-worker && wrangler d1 execute wedding-rsvp --remote --command "DELETE FROM rsvps;"
+	@echo "✓ RSVP database cleared"
+
 help:
-	@echo "Targets: all (default) | encrypt | build | serve | rebuild | clean | get-rsvp"
+	@echo "Targets: all (default) | encrypt | build | serve | rebuild | clean | get-rsvp | clean-entire-d1"
 	@echo "Vars:    PASSWORD=$(PASSWORD)  PORT=$(PORT)"
 	@echo "Usage:   make                # encrypt then serve"
 	@echo "         make encrypt PASSWORD=ourbigday"
 	@echo "         make serve PORT=9000"
 	@echo "         make get-rsvp       # list all RSVP submissions"
+	@echo "         make clean-entire-d1 # wipe all RSVP submissions (with confirmation)"

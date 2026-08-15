@@ -17,7 +17,8 @@
 
 /* ----------------------------------------------------------------------------
    2. THEME TOKENS
-   Default (no attribute / [data-theme="dark"]) = DARK.
+   Fallback (no attribute / [data-theme="dark"]) = DARK.
+   Site default is LIGHT, set explicitly via data-theme="light" in HTML/JS.
    [data-theme="light"] overrides only the variables that change.
    ---------------------------------------------------------------------------- */
 :root,

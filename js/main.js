@@ -120,11 +120,11 @@
   }
 
   /* ----------------------------------------------------------------------
-     THEME (dark is default)
+     THEME (light is default)
      ---------------------------------------------------------------------- */
   function initTheme() {
     var saved = SS.getItem(KEY_THEME);
-    var theme = saved === "light" ? "light" : "dark"; // dark default
+    var theme = saved === "dark" ? "dark" : "light"; // light default
     document.documentElement.setAttribute("data-theme", theme);
   }
 
