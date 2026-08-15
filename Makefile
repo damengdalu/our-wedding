@@ -8,6 +8,7 @@
 #    make build      → alias for `encrypt`
 #    make clean      → delete the generated js/content.js
 #    make rebuild    → clean + encrypt
+#    make get-rsvp   → dump submitted RSVPs from the Cloudflare D1 database
 #    make help       → list targets
 #
 #  Variables (override on the command line):
@@ -31,7 +32,7 @@ PASSWORD ?= shuangxi
 PORT     ?= 8000
 
 .DEFAULT_GOAL := all
-.PHONY: all encrypt build serve rebuild clean help
+.PHONY: all encrypt build serve rebuild clean get-rsvp help
 
 all: encrypt serve
 
@@ -50,9 +51,13 @@ rebuild: clean encrypt
 clean:
 	@rm -f js/content.js && echo "✓ Removed js/content.js"
 
+get-rsvp:
+	@cd tools/rsvp-worker && wrangler d1 execute wedding-rsvp --remote --command "SELECT * FROM rsvps ORDER BY created_at;"
+
 help:
-	@echo "Targets: all (default) | encrypt | build | serve | rebuild | clean"
+	@echo "Targets: all (default) | encrypt | build | serve | rebuild | clean | get-rsvp"
 	@echo "Vars:    PASSWORD=$(PASSWORD)  PORT=$(PORT)"
 	@echo "Usage:   make                # encrypt then serve"
 	@echo "         make encrypt PASSWORD=ourbigday"
 	@echo "         make serve PORT=9000"
+	@echo "         make get-rsvp       # list all RSVP submissions"

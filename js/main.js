@@ -497,17 +497,14 @@
       btn.disabled = true;
       btn.textContent = t("rsvp.f.sending");
 
-      // Google Apps Script Web Apps don't send CORS headers on the response,
-      // so a normal fetch() can't read it back (even though the request DOES
-      // reach the script and gets processed). Use no-cors and treat a
-      // non-throwing fetch as success — we can't inspect the response body.
       fetch(endpoint, {
         method: "POST",
-        mode: "no-cors",
         headers: { "Content-Type": "text/plain" },
         body: JSON.stringify(payload)
       })
-        .then(function () {
+        .then(function (res) { return res.json().then(function (data) { return { res: res, data: data }; }); })
+        .then(function (r) {
+          if (!r.res.ok || !r.data.ok) throw new Error("rsvp submit failed");
           form.hidden = true;
           $("#rsvpSuccess").hidden = false;
           window.scrollTo({ top: 0, behavior: "auto" });

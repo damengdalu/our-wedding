@@ -11,3 +11,6 @@ content/content.template.js
 # encrypted js/content.js payload
 images/gallery/
 images/gallery-china/
+
+# Cloudflare Worker local cache — contains account email/ID, never commit
+tools/rsvp-worker/.wrangler/
