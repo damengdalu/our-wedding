@@ -445,6 +445,8 @@ main#pages { max-width: var(--maxw); margin: 0 auto; padding: 0 clamp(16px, 4vw,
   margin: 0.2rem 0;
 }
 .hero .names .amp { color: var(--gold); font-style: italic; font-weight: 400; }
+.hero .name-note { color: var(--faint); font-size: 0.72rem; font-style: italic; margin-top: 0.3rem; }
+.hero .name-note:empty { display: none; }
 .hero .date {
   font-family: 'Inter', sans-serif;
   text-transform: uppercase;
